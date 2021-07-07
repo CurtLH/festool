@@ -1,0 +1,13 @@
+name: festool-dev
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.8
+  - jupyterlab
+  - black
+  - flake8
+  - requests
+  - psycopg2
+  - beautifulsoup4=4.8.2
+  - postgresql
