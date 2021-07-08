@@ -1,3 +1,5 @@
+import json
+import sys
 import requests
 from datetime import datetime
 from bs4 import BeautifulSoup as bs
@@ -37,4 +39,5 @@ r = requests.get("https://www.festoolrecon.com/")
 if r.status_code == 200:
     ad = parse(r.text)
     data = vars(ad)
-    print(data)
+    json.dump(data, sys.stdout)
+    sys.stdout.write("\n")
