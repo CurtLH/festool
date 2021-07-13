@@ -10,16 +10,12 @@ class parse:
     def __init__(self, html):
         soup = bs(html, "html.parser")
         self.get_datetime()
-        self.get_hash(soup)
         self.get_product_name(soup)
         self.get_previous_price(soup)
         self.get_current_price(soup)
 
     def get_datetime(self):
         self.datetime = datetime.strftime(datetime.now(), "%Y-%m-%d %H:%M")
-
-    def get_hash(self, soup):
-        self.sha256 = sha256(soup.encode("utf-8")).hexdigest()
 
     def get_product_name(self, soup):
         product_title = soup.find("h1", {"class": "product-single__title"}).text.strip()
@@ -44,5 +40,8 @@ r = requests.get("https://www.festoolrecon.com/")
 if r.status_code == 200:
     ad = parse(r.text)
     data = vars(ad)
+    data["sha256"] = sha256(
+        json.dumps(data, sort_keys=True).encode("utf-8")
+    ).hexdigest()
     json.dump(data, sys.stdout)
     sys.stdout.write("\n")
