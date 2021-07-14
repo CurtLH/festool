@@ -3,7 +3,6 @@ import sys
 import requests
 from datetime import datetime
 from bs4 import BeautifulSoup as bs
-import hashlib
 
 
 class parse:
@@ -13,7 +12,6 @@ class parse:
         self.get_product_name(soup)
         self.get_previous_price(soup)
         self.get_current_price(soup)
-        self.get_hash()
 
     def get_datetime(self):
         self.datetime = datetime.strftime(datetime.now(), "%Y-%m-%d %H:%M")
@@ -35,13 +33,6 @@ class parse:
             self.current_price = current_price.text.strip()
         else:
             self.current_price = None
-
-    def get_hash(self):
-        m = hashlib.md5()
-        for s in (self.product_name, self.previous_price, self.current_price):
-            m.update(str(s).encode())
-        self.hash = m.hexdigest()
-
 
 r = requests.get("https://www.festoolrecon.com/")
 if r.status_code == 200:
