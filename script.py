@@ -2,6 +2,7 @@ import json
 import sys
 import requests
 from datetime import datetime
+from time import sleep
 from bs4 import BeautifulSoup as bs
 
 
@@ -34,9 +35,28 @@ class parse:
         else:
             self.current_price = None
 
-r = requests.get("https://www.festoolrecon.com/")
-if r.status_code == 200:
-    ad = parse(r.text)
-    data = vars(ad)
-    json.dump(data, sys.stdout)
-    sys.stdout.write("\n")
+
+def get_data():
+
+    r = requests.get("https://www.festoolrecon.com/")
+    if r.status_code == 200:
+        ad = parse(r.text)
+        data = vars(ad)
+    return data
+
+
+if __name__ == "__main__":
+
+    # set inital value for product name
+    previous_product_name = None
+
+    # run continuously
+    while True:
+        data = get_data()
+        if data["product_name"] != previous_product_name:
+            json.dump(data, sys.stdout)
+            sys.stdout.write("\n")
+            previous_product_name = data["product_name"]
+        else:
+            pass
+        sleep(60)
