@@ -1,3 +1,4 @@
+import logging
 import json
 import sys
 import requests
@@ -5,6 +6,8 @@ from datetime import datetime
 from time import sleep
 from bs4 import BeautifulSoup as bs
 
+# set up basic logging
+logging.basicConfig(format="%(asctime)s %(message)s", level=logging.INFO)
 
 class parse:
     def __init__(self, html):
@@ -42,7 +45,9 @@ def get_data():
     if r.status_code == 200:
         ad = parse(r.text)
         data = vars(ad)
-    return data
+        return data
+    else:
+        raise ValueError("Request not successful")
 
 
 if __name__ == "__main__":
@@ -57,6 +62,8 @@ if __name__ == "__main__":
             json.dump(data, sys.stdout)
             sys.stdout.write("\n")
             previous_product_name = data["product_name"]
+            logging.info("New product found")
         else:
+            logging.info("Same product as before")
             pass
         sleep(60)
