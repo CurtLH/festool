@@ -76,7 +76,7 @@ if __name__ == "__main__":
 
         # check if product is new
         if ad.product_name == most_recent:
-            logging.info("Same product")
+            logging.info(f"{ad.product_name} is still available")
             pass
 
         # if new, insert record
