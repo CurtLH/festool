@@ -8,3 +8,4 @@ dependencies:
   - flake8
   - requests
   - beautifulsoup4=4.8.2
+  - psycopg2
