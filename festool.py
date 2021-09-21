@@ -92,10 +92,11 @@ if __name__ == "__main__":
                 INSERT INTO festool (
                     product_name, 
                     original_price, 
-                    refurb_price
+                    refurb_price,
+                    discount
                 )
-                VALUES (%s, %s, %s)
+                VALUES (%s, %s, %s, %s)
                 """,
-                [ad.product_name, ad.original_price, ad.refurb_price],
+                [ad.product_name, ad.original_price, ad.refurb_price, ad.discount],
             )
             logging.info("New record inserted into database")
