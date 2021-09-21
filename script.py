@@ -13,27 +13,33 @@ class parse:
     def __init__(self, html):
         soup = bs(html, "html.parser")
         self.get_product_name(soup)
-        self.get_previous_price(soup)
-        self.get_current_price(soup)
+        self.get_original_price(soup)
+        self.get_refurb_price(soup)
+        self.calc_discount()
 
     def get_product_name(self, soup):
         product_title = soup.find("h1", {"class": "product-single__title"}).text.strip()
         self.product_name = product_title
 
-    def get_previous_price(self, soup):
-        previous_price = soup.find(id="ComparePrice-product-template")
-        if previous_price is not None:
-            self.previous_price = previous_price.text.strip()
+    def get_original_price(self, soup):
+        original_price = soup.find(id="ComparePrice-product-template")
+        if original_price is not None:
+            self.original_price = float(original_price.text.strip().replace('$', '').replace(',', ''))
         else:
-            self.previous_price = None
+            self.original_price = None
 
-    def get_current_price(self, soup):
-        current_price = soup.find(id="ProductPrice-product-template")
-        if current_price is not None:
-            self.current_price = current_price.text.strip()
+    def get_refurb_price(self, soup):
+        refurb_price = soup.find(id="ProductPrice-product-template")
+        if refurb_price is not None:
+            self.refurb_price = float(refurb_price.text.strip().replace('$', '').replace(',', ''))
         else:
-            self.current_price = None
+            self.refurb_price = None
 
+    def calc_discount(self):
+        if self.original_price is not None and self.refurb_price is not None:
+            self.discount = round(1 - (self.refurb_price / self.original_price), 2)
+        else:
+            self.discount = None
 
 if __name__ == "__main__":
 
@@ -85,11 +91,11 @@ if __name__ == "__main__":
                 """
                 INSERT INTO festool (
                     product_name, 
-                    previous_price, 
-                    current_price
+                    original_price, 
+                    refurb_price
                 )
                 VALUES (%s, %s, %s)
                 """,
-                [ad.product_name, ad.previous_price, ad.current_price],
+                [ad.product_name, ad.original_price, ad.refurb_price],
             )
             logging.info("New record inserted into database")
