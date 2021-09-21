@@ -24,14 +24,18 @@ class parse:
     def get_original_price(self, soup):
         original_price = soup.find(id="ComparePrice-product-template")
         if original_price is not None:
-            self.original_price = float(original_price.text.strip().replace('$', '').replace(',', ''))
+            self.original_price = float(
+                original_price.text.strip().replace("$", "").replace(",", "")
+            )
         else:
             self.original_price = None
 
     def get_refurb_price(self, soup):
         refurb_price = soup.find(id="ProductPrice-product-template")
         if refurb_price is not None:
-            self.refurb_price = float(refurb_price.text.strip().replace('$', '').replace(',', ''))
+            self.refurb_price = float(
+                refurb_price.text.strip().replace("$", "").replace(",", "")
+            )
         else:
             self.refurb_price = None
 
@@ -40,6 +44,7 @@ class parse:
             self.discount = round(1 - (self.refurb_price / self.original_price), 2)
         else:
             self.discount = None
+
 
 if __name__ == "__main__":
 
