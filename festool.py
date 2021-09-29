@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+import smtplib
 import requests
 import psycopg2
 from bs4 import BeautifulSoup as bs
@@ -46,7 +47,42 @@ class parse:
             self.discount = None
 
 
+def send_email(user, pwd, recipient, subject, body):
+
+    """
+    Thanks to #10147455
+    """
+
+    FROM = user
+    TO = recipient if type(recipient) is list else [recipient]
+    SUBJECT = subject
+    TEXT = body
+
+    # Prepare actual message
+    message = """From: %s\nTo: %s\nSubject: %s\n\n%s
+    """ % (
+        FROM,
+        ", ".join(TO),
+        SUBJECT,
+        TEXT,
+    )
+    try:
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.ehlo()
+        server.starttls()
+        server.login(user, pwd)
+        server.sendmail(FROM, TO, message)
+        server.close()
+        logging.info("successfully sent the mail")
+    except Exception:
+        logging.warning("failed to send mail")
+
+
 if __name__ == "__main__":
+
+    # load keywords to look for
+    with open("keywords.txt", "r") as f:
+        keywords = f.read().splitlines()
 
     # connect to the database
     conn = psycopg2.connect(
@@ -69,14 +105,14 @@ if __name__ == "__main__":
     )
     try:
         most_recent = list(cur)[0][0]
-    except:
+    except Exception:
         most_recent = None
     logging.info(f"Most recent product: {most_recent}")
 
     # get the current product available
     r = requests.get("https://www.festoolrecon.com/")
     if r.status_code != 200:
-        logging.warning(f"Request failed")
+        logging.warning("Request failed")
         sys.exit()
 
     else:
@@ -90,13 +126,14 @@ if __name__ == "__main__":
             logging.info(f"Still available: {ad.product_name}")
             pass
 
-        # if new, insert record
+        # if the item is new...
         else:
+            # insert into the database
             cur.execute(
                 """
                 INSERT INTO festool (
-                    product_name, 
-                    original_price, 
+                    product_name,
+                    original_price,
                     refurb_price,
                     discount
                 )
@@ -105,3 +142,24 @@ if __name__ == "__main__":
                 [ad.product_name, ad.original_price, ad.refurb_price, ad.discount],
             )
             logging.info("New record inserted into database")
+
+            # check if the product name contains a keyword
+            if any(k.lower() in ad.product_title.lower() for k in keywords):
+
+                # create email
+                subject = f"Now available: {ad.product_name} for ${ad.refurb_price}"
+                body = f"""
+                    The {ad.product_name} is now available at a {int(ad.discount * 100)}% discount for ${ad.refurb_price}. The original price is ${ad.original_price}.
+                    \n
+                    https://www.festoolrecon.com
+                    """
+
+                # send the email
+                send_email(
+                    os.getenv("email_user"),
+                    os.getenv("email_pwd"),
+                    "CurtLHampton@gmail.com",
+                    subject,
+                    body,
+                )
+                logging.info("Email sent")
