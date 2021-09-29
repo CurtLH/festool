@@ -81,7 +81,7 @@ def send_email(user, pwd, recipient, subject, body):
 if __name__ == "__main__":
 
     # load keywords to look for
-    with open("keywords.txt", "r") as f:
+    with open("/home/curtis/github/festool/keywords.txt", "r") as f:
         keywords = f.read().splitlines()
 
     # connect to the database
