@@ -19,8 +19,8 @@ class parse:
         self.calc_discount()
 
     def get_product_name(self, soup):
-        product_title = soup.find("h1", {"class": "product-single__title"}).text.strip()
-        self.product_name = product_title
+        product_name = soup.find("h1", {"class": "product-single__title"}).text.strip()
+        self.product_name = product_name
 
     def get_original_price(self, soup):
         original_price = soup.find(id="ComparePrice-product-template")
@@ -144,7 +144,7 @@ if __name__ == "__main__":
             logging.info("New record inserted into database")
 
             # check if the product name contains a keyword
-            if any(k.lower() in ad.product_title.lower() for k in keywords):
+            if any(k.lower() in ad.product_name.lower() for k in keywords):
 
                 # create email
                 subject = f"Now available: {ad.product_name} for ${ad.refurb_price}"
