@@ -146,10 +146,15 @@ if __name__ == "__main__":
             # check if the product name contains a keyword
             if any(k.lower() in ad.product_name.lower() for k in keywords):
 
+                # format values for email
+                product_name = ad.product_name
+                discount = f"{int(ad.discount * 100)}%"
+                orig_price = f"${ad.original_price:,.2f}"
+                refurb_price = f"${ad.refurb_price:,.2f}"
+
                 # create email
-                subject = f"Now available: {ad.product_name} for ${ad.refurb_price}"
-                body = f"""
-                    The {ad.product_name} is now available at a {int(ad.discount * 100)}% discount for ${ad.refurb_price}. The original price is ${ad.original_price}.
+                subject = f"Now available: {product_name} for {refurb_price}"
+                body = f"""{product_name} is now {discount} off at {refurb_price}. The original price is {orig_price}.
                     \n
                     https://www.festoolrecon.com
                     """
