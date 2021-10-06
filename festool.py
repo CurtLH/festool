@@ -163,7 +163,7 @@ if __name__ == "__main__":
                 send_email(
                     os.getenv("email_user"),
                     os.getenv("email_pwd"),
-                    "CurtLHampton@gmail.com",
+                    os.getenv("email_to"),
                     subject,
                     body,
                 )
