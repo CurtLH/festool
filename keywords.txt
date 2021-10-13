@@ -1,8 +1,6 @@
 Dust Extractor
 Domino
 TS 55
-Jigsaw
-Router
 TSC 55
-Rotex
 Drill
+Random Orbit Sander
