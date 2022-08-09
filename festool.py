@@ -1,7 +1,8 @@
 import logging
 import os
 import sys
-import smtplib
+from slack import WebClient
+from slack.errors import SlackApiError
 import requests
 import psycopg2
 from bs4 import BeautifulSoup as bs
@@ -47,35 +48,20 @@ class parse:
             self.discount = None
 
 
-def send_email(user, pwd, recipient, subject, body):
+def send_slack(body, channel="#general"):
 
     """
-    Thanks to #10147455
+    Send Slack message
     """
 
-    FROM = user
-    TO = recipient if type(recipient) is list else [recipient]
-    SUBJECT = subject
-    TEXT = body
+    client = WebClient(token=os.getenv("slack_client"))
 
-    # Prepare actual message
-    message = """From: %s\nTo: %s\nSubject: %s\n\n%s
-    """ % (
-        FROM,
-        ", ".join(TO),
-        SUBJECT,
-        TEXT,
-    )
     try:
-        server = smtplib.SMTP("smtp.gmail.com", 587)
-        server.ehlo()
-        server.starttls()
-        server.login(user, pwd)
-        server.sendmail(FROM, TO, message)
-        server.close()
-        logging.info("successfully sent the mail")
-    except Exception:
-        logging.warning("failed to send mail")
+        response = client.chat_postMessage(channel=channel, text=body)
+    except SlackApiError as e:
+        assert e.response["ok"] is False
+        assert e.response["error"]
+        logging.warning(f"Error: {e.response['error']}")
 
 
 if __name__ == "__main__":
@@ -152,19 +138,8 @@ if __name__ == "__main__":
                 orig_price = f"${ad.original_price:,.2f}"
                 refurb_price = f"${ad.refurb_price:,.2f}"
 
-                # create email
-                subject = f"Now available: {product_name} for {refurb_price}"
-                body = f"""{product_name} is now {discount} off at {refurb_price}. The original price is {orig_price}.
-                    \n
-                    https://www.festoolrecon.com
-                    """
+                # send Slack message
+                body = f"{product_name} is now {discount} off at {refurb_price}. The original price is {orig_price}."
 
                 # send the email
-                send_email(
-                    os.getenv("email_user"),
-                    os.getenv("email_pwd"),
-                    os.getenv("email_to"),
-                    subject,
-                    body,
-                )
-                logging.info("Email sent")
+                send_slack(body, channel="#general")
