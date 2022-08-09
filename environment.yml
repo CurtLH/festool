@@ -9,3 +9,4 @@ dependencies:
   - requests
   - beautifulsoup4=4.8.2
   - psycopg2
+  - slackclient
