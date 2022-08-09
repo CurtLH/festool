@@ -129,17 +129,17 @@ if __name__ == "__main__":
             )
             logging.info("New record inserted into database")
 
-            # check if the product name contains a keyword
+            # format values for email
+            product_name = ad.product_name
+            discount = f"{int(ad.discount * 100)}%"
+            orig_price = f"${ad.original_price:,.2f}"
+            refurb_price = f"${ad.refurb_price:,.2f}"
+
+            # consturct the slack message
             if any(k.lower() in ad.product_name.lower() for k in keywords):
-
-                # format values for email
-                product_name = ad.product_name
-                discount = f"{int(ad.discount * 100)}%"
-                orig_price = f"${ad.original_price:,.2f}"
-                refurb_price = f"${ad.refurb_price:,.2f}"
-
-                # send Slack message
+                body = f"{product_name} is now {discount} off at {refurb_price}. The original price is {orig_price}."
+            else:
                 body = f"{product_name} is now {discount} off at {refurb_price}. The original price is {orig_price}."
 
-                # send the email
-                send_slack(body, channel="#general")
+            # send the email
+            send_slack(body, channel="#general")
