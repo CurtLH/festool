@@ -57,7 +57,7 @@ def send_slack(body, channel="#general"):
     client = WebClient(token=os.getenv("slack_client"))
 
     try:
-        response = client.chat_postMessage(channel=channel, text=body)
+        response = client.chat_postMessage(channel=channel, link_names=1, text=body)
     except SlackApiError as e:
         assert e.response["ok"] is False
         assert e.response["error"]
@@ -135,11 +135,14 @@ if __name__ == "__main__":
             orig_price = f"${ad.original_price:,.2f}"
             refurb_price = f"${ad.refurb_price:,.2f}"
 
+            # write the Slack message
+            body = f"{product_name} is now {discount} off at {refurb_price}. The original price is {orig_price}."
+
             # consturct the slack message
             if any(k.lower() in ad.product_name.lower() for k in keywords):
-                body = f"{product_name} is now {discount} off at {refurb_price}. The original price is {orig_price}."
+                body = f"@here: {body}"
             else:
-                body = f"{product_name} is now {discount} off at {refurb_price}. The original price is {orig_price}."
+                pass
 
             # send the email
             send_slack(body, channel="#general")
